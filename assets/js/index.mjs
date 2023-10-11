@@ -15,10 +15,9 @@ fetch(url,{
   mode: "cors",
   credentials: "include", // omit, include
   cache: "no-cache",
-  redirect: "follow", // manual, error
+  redirect: "follow", 
   integrity: "", // контрольная сумма, например "sha256-abcdef1234567890"
   keepalive: false, // true
-  signal: undefined, // AbortController, чтобы прервать запрос
   window: window // null
 })
     .then(response=>
@@ -30,3 +29,5 @@ fetch(url,{
   postData("https://katalizatoroff.ru/wp-admin/admin-ajax.php?action=get_projects&paged=10", { "action": "get_projects", "paged": "10"}).then((data) => {
     console.log(data); // JSON data parsed by `data.json()` call
   });*/
+
+  //https://katalizatoroff.ru/catalog/#
