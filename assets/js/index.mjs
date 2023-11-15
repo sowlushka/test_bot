@@ -1,33 +1,41 @@
 // Example POST method implementation:
-let url="https://yandex.ru";//"https://katalizatoroff.ru/wp-admin/admin-ajax.php";
+let url="https://infobootkatalizatory.vipserv.org/poznaj_cene/index.php";
 
-fetch(url,{
-  method: "GET", // POST, PUT, DELETE, etc.
-  headers: {
-    // значение этого заголовка обычно ставится автоматически,
-    // в зависимости от тела запроса
-    "Content-Type": "text/plain;charset=UTF-8"
-  },
-  body: undefined, // string, FormData, Blob, BufferSource или URLSearchParams
-  referrer: "",
-  // или URL с текущего источника
-  referrerPolicy: "origin-when-cross-origin",
-  mode: "cors",
-  credentials: "include", // omit, include
-  cache: "no-cache",
-  redirect: "follow", 
-  integrity: "", // контрольная сумма, например "sha256-abcdef1234567890"
-  keepalive: false, // true
-  window: window // null
-})
-    .then(response=>
-        response.text())
-    .then((text)=>
-        console.log(text));
-  
-    /*
-  postData("https://katalizatoroff.ru/wp-admin/admin-ajax.php?action=get_projects&paged=10", { "action": "get_projects", "paged": "10"}).then((data) => {
-    console.log(data); // JSON data parsed by `data.json()` call
-  });*/
+const queryString="po=lp&id=617&authenticationwwwId=&tryb=2&tc_css=false&tc_js=false&tc_dane=top20&tc_wyszukiwarka=true&checkSrc=katPage&sessid=&visitorId=";
 
-  //https://katalizatoroff.ru/catalog/#
+
+let priceButton=document.getElementById("price_button");
+
+
+priceButton.onclick=(e)=>{
+  let catIdInput=document.getElementById("cat_id");
+  getData(catIdInput.value);
+}
+
+
+function getData(id){
+  fetch(url,{
+    method: "POST",
+    headers: {
+      // значение этого заголовка обычно ставится автоматически,
+      // в зависимости от тела запроса
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "accept": "application/json, text/javascript, */*; q=0.01"
+    },
+    body: "po=lp&id="+id+"&tryb=3&tc_dane=top1000&checkSrc=katPage&",
+    // или URL с текущего источника
+    referer: "https://infobootkatalizatory.vipserv.org/",
+    referrerPolicy: "origin-when-cross-origin",
+    mode: "cors",
+    cache: "no-cache",
+    redirect: "follow"
+  })
+      .then(response=>
+          response.json())
+      .then((json)=>{
+          let list=document.getElementById('list');
+          list.innerHTML=JSON.stringify(json);
+      });
+
+}
+
