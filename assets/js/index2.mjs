@@ -79,57 +79,59 @@ function getData(id){
 
 async function getCatSerials(str){
 //На входе функции поисковая строка
-  fetch('https://infobootkatalizatory.vipserv.org/search/search',{
+  const response = await fetch('https://infobootkatalizatory.vipserv.org/search/search',{
     method: "POST",
     headers: {
+      // значение этого заголовка обычно ставится автоматически,
+      // в зависимости от тела запроса
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       "accept": "*/*"
     },
     body: "szukaj="+encodeURIComponent(str)+"&template=mobile&brand=all",
+    // или URL с текущего источника
     referer: "https://infobootkatalizatory.vipserv.org/",
     referrerPolicy: "origin-when-cross-origin",
     mode: "cors",
     cache: "no-cache",
     redirect: "follow"
-  })
-      .then(response=>
-          response.text())
-      .then((text)=>{
-          
-          //Парсим информацию о катализаторах
-          let catArr=text.split("cm_katalizator_itm");
-          for(let i=1;i<catArr.length;++i){
-          //Собираем информацию о катализаторах
-            let id=catArr[i].match(/(?<=pokaz_cene_mobile\()\d+/)?.[0];
-            if(!id)continue;
-            let serial=catArr[i].match(/(?<=cm_kat_link[^>]*>)(.*?)(?=<\/a>)/)[0].replaceAll("<b>","").replaceAll("</b>","");
-            let brand=catArr[i].split("</tr>")[0].split("<td")[2].match(/(?<=>).*?(?=<)/)[0];
-            let url=catArr[i].match(/(?<=cm_kat_link.*?href=").*?(?=")/)[0];
-            let img=catArr[i].match(/href=".*?\.jpe?g/)
-            if (img)img=img[0].replace('href="',"").replace("width300","width1600");
-            const metalls={};
-            metalls.pt=catArr[i].match(/(?<=Zawiera metale.+?)PT/)?true:false;
-            metalls.pd=catArr[i].match(/(?<=Zawiera metale.+?)PD/)?true:false;
-            metalls.rh=catArr[i].match(/(?<=Zawiera metale.+?)RH/)?true:false;
-            let newCat=new CatInfo(Number(id),brand,serial,url,img,undefined,undefined,metalls,undefined);
-            if (cats.every(cat=>cat.id!=newCat.id)){
-              cats.push(newCat);
-            }
-          }
-          let list=document.getElementById('list');
-          let node=`<div>Выполнен fetch ${str}</div>
-                    <div>Получено ${cats.length} объектов
-                    <br><br>`;
-          list.insertAdjacentHTML('beforeend',node);
-
-      });
+  });
+  const text = await response.text();
+  return text;
 }
+
+function doSomething(text, str) {
+  let catArr=text.split("cm_katalizator_itm");
+  for(let i=1;i<catArr.length;++i){
+  //Собираем информацию о катализаторах
+    let id=catArr[i].match(/(?<=pokaz_cene_mobile\()\d+/)?.[0];
+    if(!id)continue;
+    let serial=catArr[i].match(/(?<=cm_kat_link[^>]*>)(.*?)(?=<\/a>)/)[0].replaceAll("<b>","").replaceAll("</b>","");
+    let brand=catArr[i].split("</tr>")[0].split("<td")[2].match(/(?<=>).*?(?=<)/)[0];
+    let url=catArr[i].match(/(?<=cm_kat_link.*?href=").*?(?=")/)[0];
+    let img=catArr[i].match(/href=".*?\.jpe?g/)
+    if (img)img=img[0].replace('href="',"").replace("width300","width1600");
+    const metalls={};
+    metalls.pt=catArr[i].match(/(?<=Zawiera metale.+?)PT/)?true:false;
+    metalls.pd=catArr[i].match(/(?<=Zawiera metale.+?)PD/)?true:false;
+    metalls.rh=catArr[i].match(/(?<=Zawiera metale.+?)RH/)?true:false;
+    let newCat=new CatInfo(Number(id),brand,serial,url,img,undefined,undefined,metalls,undefined);
+    if (cats.every(cat=>cat.id!=newCat.id)){
+      cats.push(newCat);
+    }
+  }
+  let list=document.getElementById('list');
+  let node=`<div>Выполнен fetch ${str}</div>
+            <div>Получено ${cats.length} объектов
+            <br><br>`;
+  list.insertAdjacentHTML('beforeend',node);
+}
+
 
 async function collectCatalysts(){
   for(let i="0".codePointAt(0);i<="1".codePointAt(0);++i){
     for(let j="0".charCodeAt(0);j<="1".codePointAt(0);++j){
-      await getCatSerials(String.fromCharCode(i)+String.fromCharCode(j));
+      const text = await getCatSerials(String.fromCharCode(i)+String.fromCharCode(j));
+      doSomething(text, String.fromCharCode(i)+String.fromCharCode(j));
     }
   }
-  return true
 }

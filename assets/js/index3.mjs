@@ -79,13 +79,16 @@ function getData(id){
 
 async function getCatSerials(str){
 //На входе функции поисковая строка
-  fetch('https://infobootkatalizatory.vipserv.org/search/search',{
+  await fetch('https://infobootkatalizatory.vipserv.org/search/search',{
     method: "POST",
     headers: {
+      // значение этого заголовка обычно ставится автоматически,
+      // в зависимости от тела запроса
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       "accept": "*/*"
     },
     body: "szukaj="+encodeURIComponent(str)+"&template=mobile&brand=all",
+    // или URL с текущего источника
     referer: "https://infobootkatalizatory.vipserv.org/",
     referrerPolicy: "origin-when-cross-origin",
     mode: "cors",
@@ -126,10 +129,13 @@ async function getCatSerials(str){
 }
 
 async function collectCatalysts(){
+  let array = [];
   for(let i="0".codePointAt(0);i<="1".codePointAt(0);++i){
     for(let j="0".charCodeAt(0);j<="1".codePointAt(0);++j){
-      await getCatSerials(String.fromCharCode(i)+String.fromCharCode(j));
+      array.push(getCatSerials(String.fromCharCode(i)+String.fromCharCode(j)));
+      // ждем когда всё промисы будут выполнены
     }
   }
-  return true
+
+  await Promise.all(array);
 }
