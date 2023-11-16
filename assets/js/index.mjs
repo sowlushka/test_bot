@@ -20,25 +20,31 @@ priceButton.onclick=(e)=>{
 
 getAllButton.onclick=e=>{
   console.clear();
-  collectCats();
-  console.log(cats.length);
-  let catsSorted=[];
-  for(let i=0;i<cats.length-1;++i){
-    let minId=cats[i].id;
-    let minIndex=i;
-    for(let j=i+1;j<cats.length;++j){
-      if(minId>cats[j].id){
-        minIndex=j;
-        minId=cats[j].id;
+  collectCatalysts().then(()=>{
+    let list=document.getElementById('list');
+          let node=`<div>Начинаем сортировку.</div>
+                    <div>Имеется ${cats.length} объектов
+                    <br><br>`;
+          list.insertAdjacentHTML('beforeend',node);
+    let catsSorted=[];
+    for(let i=0;i<cats.length-1;++i){
+      let minId=cats[i].id;
+      let minIndex=i;
+      for(let j=i+1;j<cats.length;++j){
+        if(minId>cats[j].id){
+          minIndex=j;
+          minId=cats[j].id;
+        }
+      }
+      catsSorted.push(cats[minIndex]);
+      if(minIndex<cats.length-1){
+        cats[minIndex]=cats.pop();
       }
     }
-    catsSorted.push(cats[minIndex]);
-    if(minIndex<cats.length-1){
-      cats[minIndex]=cats.pop();
-    }
-  }
-  //console.log(cats);
-  console.log(catsSorted);
+    //console.log(cats);
+    console.log(catsSorted);
+  });
+  
   
 
   
@@ -92,9 +98,7 @@ async function getCatSerials(str){
       .then(response=>
           response.text())
       .then((text)=>{
-          let list=document.getElementById('list');
-          list.innerHTML=text;
-
+          
           //Парсим информацию о катализаторах
           let catArr=text.split("cm_katalizator_itm");
           for(let i=1;i<catArr.length;++i){
@@ -115,15 +119,19 @@ async function getCatSerials(str){
               cats.push(newCat);
             }
           }
-      });
+          let list=document.getElementById('list');
+          let node=`<div>Выполнен fetch ${str}</div>
+                    <div>Получено ${cats.length} объектов
+                    <br><br>`;
+          list.insertAdjacentHTML('beforeend',node);
 
+      });
 }
 
-async function collectCats(){
+async function collectCatalysts(){
   for(let i="0".codePointAt(0);i<="1".codePointAt(0);++i){
     for(let j="0".charCodeAt(0);j<="1".codePointAt(0);++j){
       await getCatSerials(String.fromCharCode(i)+String.fromCharCode(j));
     }
   }
-
 }
