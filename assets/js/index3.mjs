@@ -18,8 +18,9 @@ priceButton.onclick=(e)=>{
   getData(catIdInput.value);
 }
 
+
 getAllButton.onclick=e=>{
-  console.clear();
+  LoadIndexedDBData();
   collectCatalysts().then(()=>{
     let list=document.getElementById('list');
           let node=`<div>Начинаем сортировку.</div>
@@ -27,19 +28,15 @@ getAllButton.onclick=e=>{
                     <br><br>`;
           list.insertAdjacentHTML('beforeend',node);
     let catsSorted=[];
-    for(let i=0;i<cats.length-1;++i){
-      let minId=cats[i].id;
-      let minIndex=i;
-      for(let j=i+1;j<cats.length;++j){
-        if(minId>cats[j].id){
-          minIndex=j;
-          minId=cats[j].id;
-        }
+    for(;cats.length>0;){
+      let minIdIndex=cats.reduce((acc, curr, index, arr)=>arr[acc].id>curr.id?index:acc,0);
+      catsSorted.push(cats[minIdIndex]);
+      if(cats.length-1==minIdIndex){
+        --cats.length
+      }else{
+        cats[minIdIndex]=cats.pop();
       }
-      catsSorted.push(cats[minIndex]);
-      if(minIndex<cats.length-1){
-        cats[minIndex]=cats.pop();
-      }
+      
     }
     //console.log(cats);
     console.log(catsSorted);
@@ -92,7 +89,7 @@ async function getCatSerials(str){
     referer: "https://infobootkatalizatory.vipserv.org/",
     referrerPolicy: "origin-when-cross-origin",
     mode: "cors",
-    cache: "no-cache",
+    cache: "default",
     redirect: "follow"
   })
       .then(response=>
@@ -137,5 +134,10 @@ async function collectCatalysts(){
     }
   }
 
-  await Promise.all(array);
+  await Promise.allSettled(array);
+}
+
+
+function LoadIndexedDBData(){
+//Подгружаем данные из базы данных
 }
